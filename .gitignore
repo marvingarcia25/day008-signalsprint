@@ -8,4 +8,5 @@ wwwroot/index.html
 ClientApp/node_modules/
 ClientApp/dist/
 appsettings.Local.json
-
+publish/
+app.zip

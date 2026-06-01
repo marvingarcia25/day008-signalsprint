@@ -30,18 +30,9 @@ jobs:
       - name: Publish
         run: dotnet publish SignalSprint.csproj -c Release -o ./publish
 
-      - name: Zip publish output
-        run: cd publish && zip -r ../app.zip . && cd ..
-
-      - name: Deploy via Kudu Zip Deploy
-        env:
-          KUDU_USER: ${{ secrets.KUDU_USERNAME }}
-          KUDU_PASS: ${{ secrets.KUDU_PASSWORD }}
-        run: |
-          curl -X POST \
-            "https://signalsprint-day008.scm.azurewebsites.net/api/zipdeploy" \
-            --user "${KUDU_USER}:${KUDU_PASS}" \
-            --data-binary @app.zip \
-            --fail \
-            --show-error
-
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: signalsprint-day008
+          package: ./publish
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
