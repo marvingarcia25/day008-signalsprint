@@ -1,0 +1,47 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build React app
+        run: |
+          cd ClientApp
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish
+        run: dotnet publish SignalSprint.csproj -c Release -o ./publish
+
+      - name: Zip publish output
+        run: cd publish && zip -r ../app.zip . && cd ..
+
+      - name: Deploy via Kudu Zip Deploy
+        env:
+          KUDU_USER: ${{ secrets.KUDU_USERNAME }}
+          KUDU_PASS: ${{ secrets.KUDU_PASSWORD }}
+        run: |
+          curl -X POST \
+            "https://signalsprint-day008.scm.azurewebsites.net/api/zipdeploy" \
+            --user "${KUDU_USER}:${KUDU_PASS}" \
+            --data-binary @app.zip \
+            --fail \
+            --show-error
+

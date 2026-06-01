@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+.vs/
+data/
+wwwroot/assets/
+wwwroot/index.html
+ClientApp/node_modules/
+ClientApp/dist/
+appsettings.Local.json
+
